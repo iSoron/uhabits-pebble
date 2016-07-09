@@ -1,0 +1,51 @@
+{
+  "name": "Loop Habit Tracker",
+  "author": "Álinson S Xavier",
+  "version": "1.0.0",
+  "keywords": [
+    "pebble-app"
+  ],
+  "private": true,
+  "dependencies": {},
+  "pebble": {
+    "displayName": "Loop Habit Tracker",
+    "uuid": "82629d99-8ea6-4631-a022-9ca77a12a058",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "messageKeys": [
+      "dummy"
+    ],
+    "resources": {
+      "media": [
+        {
+          "type": "bitmap",
+          "name": "TICK_BLACK",
+          "file": "images/tick_black.png"
+        },
+        {
+          "type": "bitmap",
+          "name": "TICK_WHITE",
+          "file": "images/tick_white.png"
+        },
+        {
+          "type": "bitmap",
+          "name": "CROSS_WHITE",
+          "file": "images/cross_white.png"
+        },
+        {
+          "type": "bitmap",
+          "name": "CROSS_BLACK",
+          "file": "images/cross_black.png"
+        }
+      ]
+    }
+  }
+}
