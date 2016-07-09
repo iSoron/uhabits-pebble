@@ -17,12 +17,12 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <pebble.h>
-#include "windows/list/list_window.h"
+#pragma once
 
-int main(void)
-{
-    LIST_WINDOW_push();
-    app_event_loop();
-    LIST_WINDOW_destroy();
-}
+void LIST_WINDOW_push();
+
+void LIST_WINDOW_destroy();
+
+int LIST_WINDOW_allocate(int count);
+
+int LIST_WINDOW_add_habit(int new_id, char *new_checkmark, int i);

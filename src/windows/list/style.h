@@ -19,21 +19,14 @@
 
 #pragma once
 
-// STYLE
-//--------------------------------------------------------------------------------
+#include <pebble.h>
 
 #define HIGHLIGHT_BACKGROUND_COLOR GColorFolly
+
 #define HIGHLIGHT_FOREGROUND_COLOR GColorWhite
-#define NORMAL_BACKGROUND_COLOR GColorBlack
-#define NORMAL_FOREGROUND_COLOR GColorWhite
+
+#define NORMAL_BACKGROUND_COLOR GColorWhite
+
+#define NORMAL_FOREGROUND_COLOR GColorBlack
+
 #define CELL_HEIGHT 36
-
-//--------------------------------------------------------------------------------
-
-void LIST_WINDOW_push();
-
-void LIST_WINDOW_destroy();
-
-int LIST_WINDOW_allocate(int count);
-
-int LIST_WINDOW_add_habit(int new_id, char *new_checkmark, int i);

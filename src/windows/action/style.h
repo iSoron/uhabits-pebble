@@ -17,12 +17,16 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <pebble.h>
-#include "windows/list/list_window.h"
+#pragma once
 
-int main(void)
-{
-    LIST_WINDOW_push();
-    app_event_loop();
-    LIST_WINDOW_destroy();
-}
+#include <pebble.h>
+
+#define HIGHLIGHT_BACKGROUND_COLOR GColorBlack
+
+#define HIGHLIGHT_FOREGROUND_COLOR GColorWhite
+
+#define NORMAL_BACKGROUND_COLOR GColorBlack
+
+#define NORMAL_FOREGROUND_COLOR GColorDarkGray
+
+#define CELL_HEIGHT 36

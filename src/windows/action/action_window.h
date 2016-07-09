@@ -17,12 +17,8 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <pebble.h>
-#include "windows/list/list_window.h"
+#pragma once
 
-int main(void)
-{
-    LIST_WINDOW_push();
-    app_event_loop();
-    LIST_WINDOW_destroy();
-}
+void ACTION_WINDOW_push();
+
+void ACTION_WINDOW_destroy();

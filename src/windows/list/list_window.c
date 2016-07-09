@@ -18,9 +18,11 @@
  */
 
 #include <pebble.h>
-#include "../network.h"
-#include "../util.h"
+#include "../../network.h"
+#include "../../util.h"
 #include "list_window.h"
+#include "../action/action_window.h"
+#include "style.h"
 
 static Window *WINDOW = 0;
 static MenuLayer *MENU_LAYER = 0;
@@ -99,7 +101,9 @@ static void select_click(MenuLayer *menu_layer, MenuIndex *index, void *context)
 {
     int n = index->row;
     int id = HABIT_IDS[n];
-    NETWORK_request_toggle(id);
+//    NETWORK_request_toggle(id);
+
+    ACTION_WINDOW_push();
 }
 
 static void request_list(void *context)

@@ -20,7 +20,7 @@
 #include <pebble.h>
 #include "network.h"
 #include "util.h"
-#include "windows/list_window.h"
+#include "windows/list/list_window.h"
 
 #define MAX_HABIT_COUNT 50
 static int HABIT_COUNT;

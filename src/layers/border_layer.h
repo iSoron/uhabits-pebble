@@ -17,12 +17,17 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <pebble.h>
-#include "windows/list/list_window.h"
+#pragma once
 
-int main(void)
+#include <pebble.h>
+
+struct BorderLayer
 {
-    LIST_WINDOW_push();
-    app_event_loop();
-    LIST_WINDOW_destroy();
-}
+    int16_t width;
+    GColor color;
+    Layer *raw_layer;
+};
+
+void BORDER_LAYER_init(struct BorderLayer *border, struct GRect frame);
+
+void BORDER_LAYER_destroy(struct BorderLayer *border);
