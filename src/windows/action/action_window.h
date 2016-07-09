@@ -19,6 +19,15 @@
 
 #pragma once
 
-void ACTION_WINDOW_push();
+struct ActionWindow
+{
+    struct Window *raw_window;
 
-void ACTION_WINDOW_destroy();
+    struct ActionMenuLayer *menu_layer;
+
+    struct BorderLayer *border_layer;
+};
+
+struct ActionWindow* ACTION_WINDOW_create();
+
+void ACTION_WINDOW_destroy(struct ActionWindow *window);

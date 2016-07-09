@@ -16,18 +16,33 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 #pragma once
 
-struct ListWindow
+#include <pebble.h>
+
+struct ListLayerCallbacks
 {
-    struct Window *raw_window;
-    struct ListLayer *list_layer;
-    struct ActionWindow *action_window;
+    void (*on_select)(void *callback_context);
 };
 
-void LIST_WINDOW_show_action_window(struct ListWindow *window);
+struct ListLayer
+{
+    uint16_t habit_count;
+    char **habit_names;
+    int *habit_ids;
+    int *habit_checkmarks;
 
-struct ListWindow *LIST_WINDOW_create();
+    struct MenuLayer *menu_layer;
+    struct ActionWindow *action_window;
 
-void LIST_WINDOW_destroy(struct ListWindow *window);
+    void *callback_context;
+    struct ListLayerCallbacks callbacks;
+};
+
+void LIST_LAYER_attach_to_window(struct ListLayer *layer, struct Window *window);
+
+void LIST_LAYER_add_to_layer(struct ListLayer *layer, struct Layer *root_layer);
+
+struct ListLayer* LIST_LAYER_create(struct GRect bounds);
+
+void LIST_LAYER_destroy(struct ListLayer *layer);

@@ -28,6 +28,9 @@ struct BorderLayer
     Layer *raw_layer;
 };
 
-void BORDER_LAYER_init(struct BorderLayer *border, struct GRect frame);
+void BORDER_LAYER_add_to_layer(struct BorderLayer *border,
+                               struct Layer *root_layer);
+
+struct BorderLayer *BORDER_LAYER_create(struct GRect frame);
 
 void BORDER_LAYER_destroy(struct BorderLayer *border);

@@ -26,6 +26,7 @@ struct BorderLayer* get_data(const struct Layer *layer)
     return border;
 }
 
+// callback: LayerUpdateProc
 static void on_update(struct Layer *layer, GContext *context)
 {
     struct BorderLayer *border = get_data(layer);
@@ -39,12 +40,12 @@ static void on_update(struct Layer *layer, GContext *context)
     graphics_fill_rect(context, rect, 0, GCornerNone);
 }
 
-static struct Layer* create_layer(struct BorderLayer *border,
-                                  struct GRect frame)
+static struct Layer* create_raw_layer(struct BorderLayer *border,
+                                      struct GRect frame)
 {
     size_t data_region_size = sizeof(struct BorderLayer *);
     struct Layer *layer = layer_create_with_data(frame, data_region_size);
-    layer_set_update_proc(layer, on_update);
+    if(!layer) return NULL;
 
     struct BorderLayer **data_region = layer_get_data(layer);
     *data_region = border;
@@ -52,14 +53,36 @@ static struct Layer* create_layer(struct BorderLayer *border,
     return layer;
 }
 
-void BORDER_LAYER_init(struct BorderLayer *border, struct GRect frame)
+void BORDER_LAYER_add_to_layer(struct BorderLayer *border,
+                               struct Layer *root_layer)
 {
-    border->raw_layer = create_layer(border, frame);
-    border->color = GColorWhite;
-    border->width = 5;
+    struct Layer *raw_layer = border->raw_layer;
+    layer_add_child(root_layer, raw_layer);
+}
+
+struct BorderLayer *BORDER_LAYER_create(struct GRect frame)
+{
+    struct BorderLayer *border_layer = 0;
+
+    border_layer = (struct BorderLayer*) malloc(sizeof(struct BorderLayer));
+    if(!border_layer) return NULL;
+
+    struct Layer *raw_layer = create_raw_layer(border_layer, frame);
+    if(!raw_layer) return NULL;
+
+    layer_set_update_proc(raw_layer, on_update);
+
+    border_layer->raw_layer = raw_layer;
+    border_layer->color = GColorWhite;
+    border_layer->width = 5;
+
+    return border_layer;
 }
 
 void BORDER_LAYER_destroy(struct BorderLayer *border)
 {
+    if(!border) return;
+
     layer_destroy(border->raw_layer);
+    free(border);
 }

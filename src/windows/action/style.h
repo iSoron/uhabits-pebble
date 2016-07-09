@@ -29,4 +29,8 @@
 
 #define NORMAL_FOREGROUND_COLOR GColorDarkGray
 
+#define BORDER_COLOR GColorFolly
+
+#define BORDER_WIDTH 10
+
 #define CELL_HEIGHT 36

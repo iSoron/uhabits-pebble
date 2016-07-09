@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 project(hello)
 
 SET(PEBBLE_FLAVOUR basalt)
-SET(PEBBLE_SDK_VER 3.13.1)
+SET(PEBBLE_SDK_VER 3.14)
 SET(PEBBLE_SDK "/opt/pebble-sdk")
 INCLUDE_DIRECTORIES("${PEBBLE_SDK}/.pebble-sdk/SDKs/${PEBBLE_SDK_VER}/sdk-core/pebble/${PEBBLE_FLAVOUR}/include")
 INCLUDE_DIRECTORIES("build/${PEBBLE_FLAVOUR}/src")
@@ -22,6 +22,8 @@ set(SOURCE_FILES
         src/windows/action/action_window.h
         src/windows/action/style.h
         src/layers/border_layer.c
-        src/layers/border_layer.h)
+        src/layers/border_layer.h
+        src/windows/action/action_menu_layer.c
+        src/windows/action/action_menu_layer.h src/windows/list/list_layer.c src/windows/list/list_layer.h)
 
 add_executable(hello ${SOURCE_FILES})

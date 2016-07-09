@@ -19,15 +19,25 @@
 
 #pragma once
 
-struct ListWindow
+struct ActionMenuLayerCallbacks
 {
-    struct Window *raw_window;
-    struct ListLayer *list_layer;
-    struct ActionWindow *action_window;
+    void (*on_select)(void *callback_context);
 };
 
-void LIST_WINDOW_show_action_window(struct ListWindow *window);
+struct ActionMenuLayer
+{
+    struct MenuLayer *menu_layer;
 
-struct ListWindow *LIST_WINDOW_create();
+    void *callback_context;
+    struct ActionMenuLayerCallbacks callbacks;
+};
 
-void LIST_WINDOW_destroy(struct ListWindow *window);
+void ACTION_MENU_LAYER_attach_to_window(struct ActionMenuLayer *action_menu,
+                                        struct Window *window);
+
+void ACTION_MENU_LAYER_add_to_layer(struct ActionMenuLayer *action_menu,
+                                    struct Layer *root_layer);
+
+void ACTION_MENU_LAYER_destroy(struct ActionMenuLayer *action_menu);
+
+struct ActionMenuLayer* ACTION_MENU_LAYER_create(struct GRect bounds);

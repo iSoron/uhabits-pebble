@@ -13,9 +13,7 @@
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [
-      "aplite",
-      "basalt",
-      "chalk"
+      "basalt"
     ],
     "watchapp": {
       "watchface": false
@@ -25,26 +23,6 @@
     ],
     "resources": {
       "media": [
-        {
-          "type": "bitmap",
-          "name": "TICK_BLACK",
-          "file": "images/tick_black.png"
-        },
-        {
-          "type": "bitmap",
-          "name": "TICK_WHITE",
-          "file": "images/tick_white.png"
-        },
-        {
-          "type": "bitmap",
-          "name": "CROSS_WHITE",
-          "file": "images/cross_white.png"
-        },
-        {
-          "type": "bitmap",
-          "name": "CROSS_BLACK",
-          "file": "images/cross_black.png"
-        }
       ]
     }
   }

@@ -20,7 +20,6 @@
 #include <pebble.h>
 #include "network.h"
 #include "util.h"
-#include "windows/list/list_window.h"
 
 #define MAX_HABIT_COUNT 50
 static int HABIT_COUNT;
@@ -64,8 +63,8 @@ static int process_count(DictionaryIterator *iter)
 
     int count = tuple->value->int32;
 
-    rval = LIST_WINDOW_allocate(count);
-    abort_if(rval, "LIST_WINDOW_allocate failed");
+//    rval = LIST_WINDOW_allocate(count);
+//    abort_if(rval, "LIST_WINDOW_allocate failed");
 
     if(count > MAX_HABIT_COUNT) count = MAX_HABIT_COUNT;
     HABIT_COUNT = count;
@@ -82,23 +81,23 @@ static int process_habit(DictionaryIterator *iter)
 {
     int rval = 0;
 
-    // id
-    Tuple *tuple = dict_find(iter, 1);
-    abort_if(!tuple, "tuple is null");
-    int id = tuple->value->int32;
+//    // id
+//    Tuple *tuple = dict_find(iter, 1);
+//    abort_if(!tuple, "tuple is null");
+//    int id = tuple->value->int32;
+//
+//    // name
+//    tuple = dict_find(iter, 2);
+//    abort_if(!tuple, "tuple is null");
+//    char *name = tuple->value->cstring;
+//
+//    // checkmark value
+//    tuple = dict_find(iter, 3);
+//    abort_if(!tuple, "tuple is null");
+//    int checkmark = tuple->value->int32;
 
-    // name
-    tuple = dict_find(iter, 2);
-    abort_if(!tuple, "tuple is null");
-    char *name = tuple->value->cstring;
-
-    // checkmark value
-    tuple = dict_find(iter, 3);
-    abort_if(!tuple, "tuple is null");
-    int checkmark = tuple->value->int32;
-
-    rval = LIST_WINDOW_add_habit(id, name, checkmark);
-    abort_if(rval, "LIST_WINDOW_add_habit failed");
+//    rval = LIST_WINDOW_add_habit(id, name, checkmark);
+//    abort_if(rval, "LIST_WINDOW_add_habit failed");
 
     rval = request_next_habit();
     abort_if(rval, "request_next_habit failed");

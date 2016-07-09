@@ -22,7 +22,10 @@
 
 int main(void)
 {
-    LIST_WINDOW_push();
+    struct ListWindow *window = LIST_WINDOW_create();
+    window_stack_push(window->raw_window, true);
+
     app_event_loop();
-    LIST_WINDOW_destroy();
+
+    LIST_WINDOW_destroy(window);
 }
