@@ -38,6 +38,9 @@ static void on_update(struct Layer *layer, GContext *context)
     };
     graphics_context_set_fill_color(context, border->color);
     graphics_fill_rect(context, rect, 0, GCornerNone);
+
+    graphics_context_set_fill_color(context, GColorBlack);
+    graphics_fill_circle(context, GPoint(7, 10), 2);
 }
 
 static struct Layer* create_raw_layer(struct BorderLayer *border,

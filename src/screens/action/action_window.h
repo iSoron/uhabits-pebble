@@ -21,6 +21,8 @@
 
 struct ActionWindow
 {
+    int habit_id;
+
     struct Window *raw_window;
 
     struct ActionMenuLayer *menu_layer;
@@ -30,6 +32,6 @@ struct ActionWindow
     struct AnimationWindow *animation_window;
 };
 
-struct ActionWindow* ACTION_WINDOW_create();
+struct ActionWindow* ACTION_WINDOW_create(int habit_id);
 
 void ACTION_WINDOW_destroy(struct ActionWindow *window);

@@ -21,15 +21,69 @@
 #include "list_window.h"
 #include "../action/action_window.h"
 #include "list_layer.h"
-#include "../animation/animation_window.h"
+#include "../../network.h"
+#include "../../util.h"
 
-static void on_select(void *callback_context)
+// NETWORK CALLBACKS
+// -----------------------------------------------------------------------------
+int on_habit(int id, char *name, int checkmark, void *callback_context)
 {
+    int rval = 0;
     struct ListWindow *window = callback_context;
-    LIST_WINDOW_show_action_window(window);
+
+    rval = LIST_LAYER_add_habit(window->list_layer, id, name, checkmark);
+    abort_if(rval, "LIST_LAYER_add_habit failed");
+
+CLEANUP:
+    return rval;
 }
 
-// callback: WindowHandler
+int on_count(int count, void *callback_context)
+{
+    int rval = 0;
+    struct ListWindow *window = callback_context;
+
+    rval = LIST_LAYER_allocate(window->list_layer, count);
+    abort_if(rval, "LIST_LAYER_allocate failed");
+
+CLEANUP:
+    return rval;
+}
+
+// BUTTON CALLBACKS
+// -----------------------------------------------------------------------------
+static int on_select(int habit_id, void *callback_context)
+{
+    int rval = 0;
+    struct ListWindow *window = callback_context;
+
+    ACTION_WINDOW_destroy(window->action_window);
+
+    window->action_window = ACTION_WINDOW_create(habit_id);
+    abort_if(!window->action_window, "ACTION_WINDOW_create failed");
+
+    window_stack_push(window->action_window->raw_window, true);
+
+CLEANUP:
+    return rval;
+}
+
+// TIMER CALLBACKS
+// -----------------------------------------------------------------------------
+static void request_list(void *callback_context)
+{
+    int rval = 0;
+
+    rval = NETWORK_request_list();
+    abort_if(rval, "NETWORK_request_list failed");
+
+CLEANUP:
+    if(rval) CRASH();
+}
+
+// WINDOW HANDLERS
+// -----------------------------------------------------------------------------
+
 static void on_load(Window *raw_window)
 {
     Layer *root_layer = window_get_root_layer(raw_window);
@@ -40,13 +94,12 @@ static void on_load(Window *raw_window)
     LIST_LAYER_attach_to_window(window->list_layer, raw_window);
     LIST_LAYER_add_to_layer(window->list_layer, root_layer);
 
-    window->list_layer->callback_context = window;
     window->list_layer->callbacks = (struct ListLayerCallbacks) {
-            .on_select = on_select
+            .on_select = on_select,
+            .on_select_context = window
     };
 }
 
-// callback: WindowHandler
 static void on_unload(Window *raw_window)
 {
     struct ListWindow *list_window = window_get_user_data(raw_window);
@@ -54,21 +107,48 @@ static void on_unload(Window *raw_window)
     ACTION_WINDOW_destroy(list_window->action_window);
 }
 
-void LIST_WINDOW_show_action_window(struct ListWindow *window)
+static void on_appear(Window *raw_window)
 {
-    ACTION_WINDOW_destroy(window->action_window);
+    int rval = 0;
+    struct ListWindow *window = window_get_user_data(raw_window);
 
-    window->action_window = ACTION_WINDOW_create();
-    if(!window->action_window) return;
+    LIST_LAYER_clear(window->list_layer);
 
-    window_stack_push(window->action_window->raw_window, true);
+    struct NetworkCallbacks *callbacks = NETWORK_get_callbacks();
+    abort_if(!callbacks, "NETWORK_get_callbacks failed");
+    callbacks->on_count = on_count;
+    callbacks->on_count_context = window;
+    callbacks->on_habit = on_habit;
+    callbacks->on_habit_context = window;
+
+    app_timer_register(500, request_list, window);
+
+CLEANUP:
+    if(rval) CRASH();
 }
+
+static void on_disappear(Window *raw_window)
+{
+    int rval = 0;
+
+    struct NetworkCallbacks *callbacks = NETWORK_get_callbacks();
+    abort_if(!callbacks, "NETWORK_get_callbacks failed");
+    callbacks->on_count = 0;
+    callbacks->on_habit = 0;
+
+CLEANUP:
+    if(rval) CRASH();
+}
+
+// -----------------------------------------------------------------------------
 
 struct ListWindow *LIST_WINDOW_create()
 {
     WindowHandlers handlers = {
         .load = on_load,
-        .unload = on_unload
+        .unload = on_unload,
+        .appear = on_appear,
+        .disappear = on_disappear,
     };
 
     struct ListWindow *list_window = 0;

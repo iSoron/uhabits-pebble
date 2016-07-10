@@ -22,10 +22,18 @@
 #include <pebble.h>
 
 #define abort_if(cond, msg) if(cond) { \
-        APP_LOG(APP_LOG_LEVEL_ERROR, msg " (%d) (%s:%d)", rval, __FILE__, __LINE__); \
+        APP_LOG(APP_LOG_LEVEL_ERROR, msg " (%d)", rval); \
         rval = 1; goto CLEANUP; }
 
 #define abort_iff(cond, msg, ...) if(cond) { \
-        APP_LOG(APP_LOG_LEVEL_ERROR, msg " (%d) (%s:%d)", __VA_ARGS__, rval, __FILE__, \
-                    __LINE__); \
+        APP_LOG(APP_LOG_LEVEL_ERROR, msg " (%d)", __VA_ARGS__, rval); \
         rval = 1; goto CLEANUP; }
+
+#define log_debug(msg, ...) APP_LOG(APP_LOG_LEVEL_DEBUG, msg, __VA_ARGS__)
+
+static void CRASH()
+{
+    APP_LOG(APP_LOG_LEVEL_ERROR, "%s", "forcing crash");
+    int *x = NULL;
+    *x = 42;
+}

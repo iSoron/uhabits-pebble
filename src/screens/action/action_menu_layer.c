@@ -22,9 +22,12 @@
 #include "style.h"
 
 const char *ACTIONS[] = {
-        "   Check",
-        "   View stats"
+        "    Check",
+        "    More Info"
 };
+
+// MENU LAYER CALLBACKS
+// -----------------------------------------------------------------------------
 
 // callback: MenuLayerSelectCallback
 static void on_click(struct MenuLayer *menu_layer,
@@ -61,6 +64,8 @@ static int16_t on_get_cell_height(struct MenuLayer *menu_layer,
 {
     return CELL_HEIGHT;
 }
+
+// -----------------------------------------------------------------------------
 
 static void set_menu_layer_callbacks(struct ActionMenuLayer *action_menu,
                                      struct MenuLayer *menu)

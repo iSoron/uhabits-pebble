@@ -31,6 +31,6 @@
 
 #define BORDER_COLOR GColorFolly
 
-#define BORDER_WIDTH 6
+#define BORDER_WIDTH 14
 
 #define CELL_HEIGHT 36

@@ -19,8 +19,30 @@
 
 #pragma once
 
-int NETWORK_register();
+struct NetworkCallbacks
+{
+    void *on_count_context;
+
+    void *on_habit_context;
+
+    void *on_ok_context;
+
+    int (*on_count)(int count, void *callback_context);
+
+    int (*on_habit)(int id,
+                    char *name,
+                    int checkmark,
+                    void *callback_context);
+
+    int (*on_ok)(void *callback_context);
+};
 
 int NETWORK_request_list();
 
 int NETWORK_request_toggle(int id);
+
+struct NetworkCallbacks* NETWORK_get_callbacks();
+
+int NETWORK_register();
+
+void NETWORK_cleanup();

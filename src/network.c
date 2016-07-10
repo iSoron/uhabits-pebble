@@ -22,17 +22,38 @@
 #include "util.h"
 
 #define MAX_HABIT_COUNT 50
-static int HABIT_COUNT;
-static int HABIT_CURRENT;
 
-// LIST WINDOW
-//------------------------------------------------------------------------------
+struct NetworkState
+{
+    int habit_count;
 
-static int request_next_habit()
+    int habit_current;
+
+    struct NetworkCallbacks *callbacks;
+};
+
+static int process_ok(struct NetworkState *state)
 {
     int rval = 0;
+    abort_if(!state, "state is null");
 
-    if(HABIT_CURRENT >= HABIT_COUNT)
+    struct NetworkCallbacks *callbacks = state->callbacks;
+    abort_if(!callbacks, "callbacks is null");
+
+    if(!callbacks->on_ok) goto CLEANUP;
+    rval = callbacks->on_ok(callbacks->on_ok_context);
+    abort_if(rval, "state->on_ok failed");
+
+CLEANUP:
+    return rval;
+}
+
+static int request_next_habit(struct NetworkState *state)
+{
+    int rval = 0;
+    abort_if(!state, "state is null");
+
+    if(state->habit_current >= state->habit_count)
         goto CLEANUP;
 
     DictionaryIterator *dict;
@@ -42,83 +63,72 @@ static int request_next_habit()
     rval = dict_write_cstring(dict, 0, "FETCH");
     abort_if(rval, "dict_write_cstring failed");
 
-    rval = dict_write_int32(dict, 1, HABIT_CURRENT);
+    rval = dict_write_int32(dict, 1, state->habit_current);
     abort_if(rval, "dict_write_cstring failed");
 
     rval = app_message_outbox_send();
     abort_if(rval, "app_message_outbox_send failed");
 
-    HABIT_CURRENT++;
+    state->habit_current++;
 
 CLEANUP:
     return rval;
 }
 
-static int process_count(DictionaryIterator *iter)
+static int process_count(DictionaryIterator *iter, struct NetworkState *state)
 {
     int rval = 0;
+    abort_if(!state, "state is null");
+    struct NetworkCallbacks *callbacks = state->callbacks;
 
     Tuple *tuple = dict_find(iter, 1);
     abort_if(!tuple, "tuple is null");
 
     int count = tuple->value->int32;
 
-//    rval = LIST_WINDOW_allocate(count);
-//    abort_if(rval, "LIST_WINDOW_allocate failed");
+    if(callbacks->on_count)
+    {
+        rval = callbacks->on_count(count, callbacks->on_count_context);
+        abort_if(rval, "state->on_count failed");
+    }
 
     if(count > MAX_HABIT_COUNT) count = MAX_HABIT_COUNT;
-    HABIT_COUNT = count;
-    HABIT_CURRENT = 0;
+    state->habit_count = count;
+    state->habit_current = 0;
 
-    rval = request_next_habit();
-    abort_if(rval, "request_next_habit failed");
-
-    CLEANUP:
-    return rval;
-}
-
-static int process_habit(DictionaryIterator *iter)
-{
-    int rval = 0;
-
-//    // id
-//    Tuple *tuple = dict_find(iter, 1);
-//    abort_if(!tuple, "tuple is null");
-//    int id = tuple->value->int32;
-//
-//    // name
-//    tuple = dict_find(iter, 2);
-//    abort_if(!tuple, "tuple is null");
-//    char *name = tuple->value->cstring;
-//
-//    // checkmark value
-//    tuple = dict_find(iter, 3);
-//    abort_if(!tuple, "tuple is null");
-//    int checkmark = tuple->value->int32;
-
-//    rval = LIST_WINDOW_add_habit(id, name, checkmark);
-//    abort_if(rval, "LIST_WINDOW_add_habit failed");
-
-    rval = request_next_habit();
+    rval = request_next_habit(state);
     abort_if(rval, "request_next_habit failed");
 
 CLEANUP:
     return rval;
 }
 
-int NETWORK_request_list()
+static int process_habit(DictionaryIterator *iter, struct NetworkState *state)
 {
     int rval = 0;
+    struct NetworkCallbacks *callbacks = state->callbacks;
 
-    DictionaryIterator *dict;
-    rval = app_message_outbox_begin(&dict);
-    abort_if(rval, "app_message_outbox_begin failed");
+    Tuple *tuple = dict_find(iter, 1);
+    abort_if(!tuple, "tuple is null");
+    int id = tuple->value->int32;
 
-    rval = dict_write_cstring(dict, 0, "COUNT");
-    abort_if(rval, "dict_write_cstring failed");
+    tuple = dict_find(iter, 2);
+    abort_if(!tuple, "tuple is null");
+    char *name = tuple->value->cstring;
 
-    rval = app_message_outbox_send();
-    abort_if(rval, "app_message_outbox_send failed");
+    tuple = dict_find(iter, 3);
+    abort_if(!tuple, "tuple is null");
+    int checkmark = tuple->value->int32;
+
+    if(callbacks->on_habit)
+    {
+        void *ctx = callbacks->on_habit_context;
+        rval = callbacks->on_habit(id, name, checkmark, ctx);
+        abort_if(rval, "state->on_habit failed");
+
+        rval = request_next_habit(state);
+        abort_if(rval, "request_next_habit failed");
+    }
 
 CLEANUP:
     return rval;
@@ -141,44 +151,102 @@ int NETWORK_request_toggle(int id)
     rval = app_message_outbox_send();
     abort_if(rval, "app_message_outbox_send failed");
 
-    CLEANUP:
+    log_debug("--> %s", "COUNT");
+
+CLEANUP:
     return rval;
 }
 
-//------------------------------------------------------------------------------
+int NETWORK_request_list()
+{
+    int rval = 0;
+
+    DictionaryIterator *dict;
+    rval = app_message_outbox_begin(&dict);
+    abort_if(rval, "app_message_outbox_begin failed");
+
+    rval = dict_write_cstring(dict, 0, "COUNT");
+    abort_if(rval, "dict_write_cstring failed");
+
+    rval = app_message_outbox_send();
+    abort_if(rval, "app_message_outbox_send failed");
+
+    log_debug("--> %s", "COUNT");
+
+CLEANUP:
+    return rval;
+}
 
 static void NETWORK_on_received(DictionaryIterator *iter, void *context)
 {
     int rval = 0;
+    struct NetworkState *state = context;
+    abort_if(!state, "state is null");
 
     Tuple *tuple = dict_find(iter, 0);
     abort_if(!tuple, "tuple is null");
 
     char *action = tuple->value->cstring;
+    log_debug("<-- %s", action);
 
     if(strcmp(action, "COUNT") == 0)
     {
-        rval = process_count(iter);
+        rval = process_count(iter, state);
         abort_if(rval, "process_count failed");
     }
     else if(strcmp(action, "HABIT") == 0)
     {
-        rval = process_habit(iter);
+        rval = process_habit(iter, state);
         abort_if(rval, "process_habit failed");
     }
     else if(strcmp(action, "OK") == 0)
     {
-        rval = NETWORK_request_list();
-        abort_if(rval, "NETWORK_request_list failed");
+        rval = process_ok(state);
+        abort_if(rval, "process_ok failed");
     }
 
 CLEANUP:
     return;
 }
 
+struct NetworkCallbacks * NETWORK_get_callbacks()
+{
+    struct NetworkState *state = app_message_get_context();
+    return state->callbacks;
+}
+
 int NETWORK_register()
 {
+    int rval = 0;
+
+    struct NetworkState *state = 0;
+    state = (struct NetworkState*) malloc(sizeof(struct NetworkState));
+    abort_if(!state, "could not allocate state");
+
+    struct NetworkCallbacks *callbacks = 0;
+    callbacks = (struct NetworkCallbacks*) malloc(sizeof(struct NetworkCallbacks));
+    abort_if(!callbacks, "could not allocate callbacks");
+
+    state->callbacks = callbacks;
+    callbacks->on_ok = 0;
+    callbacks->on_habit = 0;
+    callbacks->on_count = 0;
+    callbacks->on_ok_context = 0;
+    callbacks->on_habit_context = 0;
+    callbacks->on_count_context = 0;
+
     app_message_register_inbox_received(NETWORK_on_received);
     app_message_open(1024, 1024);
-    return 0;
+    app_message_set_context(state);
+
+CLEANUP:
+    return rval;
+}
+
+void NETWORK_cleanup()
+{
+    struct NetworkState *state = app_message_get_context();
+    free(state->callbacks);
+    free(state);
+    app_message_deregister_callbacks();
 }

@@ -9,6 +9,7 @@ INCLUDE_DIRECTORIES("build/${PEBBLE_FLAVOUR}/src")
 INCLUDE_DIRECTORIES("build/include")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+add_definitions(-DCLION)
 
 set(SOURCE_FILES
         src/main.c

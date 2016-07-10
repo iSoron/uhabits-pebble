@@ -19,13 +19,26 @@
 
 #include <pebble.h>
 #include "screens/list/list_window.h"
+#include "network.h"
+#include "util.h"
 
 int main(void)
 {
-    struct ListWindow *window = LIST_WINDOW_create();
+    int rval = 0;
+    struct ListWindow *window = 0;
+
+    rval = NETWORK_register();
+    abort_if(rval, "NETWORK_register failed");
+
+    window = LIST_WINDOW_create();
+    abort_if(!window, "LIST_WINDOW_create failed");
+
     window_stack_push(window->raw_window, true);
 
     app_event_loop();
 
+CLEANUP:
     LIST_WINDOW_destroy(window);
+    NETWORK_cleanup();
+    return rval;
 }

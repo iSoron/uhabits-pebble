@@ -24,17 +24,46 @@
 #include "action_menu_layer.h"
 #include "style.h"
 #include "../animation/animation_window.h"
+#include "../../network.h"
 
-static void on_select(void *callback_context)
+#ifdef CLION
+#include <resource_ids.auto.h>
+#endif
+
+// NETWORK CALLBACKS
+// -----------------------------------------------------------------------------
+
+static int on_ok(void *callback_context)
 {
-    struct ActionWindow *window = callback_context;
-
-    ANIMATION_WINDOW_destroy(window->animation_window);
-    window->animation_window = ANIMATION_WINDOW_create(
+    struct AnimationWindow *window = ANIMATION_WINDOW_create(
             RESOURCE_ID_CONFIRM_SEQUENCE);
 
-    window_stack_push(window->animation_window->raw_window, true);
+    window_stack_push(window->raw_window, true);
+    return 0;
 }
+
+// ACTION MENU LAYER CALLBACKS
+// -----------------------------------------------------------------------------
+
+static int on_select(void *callback_context)
+{
+    int rval = 0;
+
+    struct ActionWindow *window = callback_context;
+
+    rval = NETWORK_request_toggle(window->habit_id);
+    abort_if(rval, "NETWORK_request_toggle failed");
+
+    struct NetworkCallbacks *net_callbacks = NETWORK_get_callbacks();
+    abort_if(!net_callbacks, "NETWORK_get_callbacks failed");
+
+    net_callbacks->on_ok = on_ok;
+
+CLEANUP:
+    return rval;
+}
+
+// -----------------------------------------------------------------------------
 
 static int add_menu_layer(struct ActionWindow *window,
                           struct Layer *root_layer,
@@ -109,12 +138,14 @@ static void set_raw_window_handlers(Window *raw_window)
     window_set_window_handlers(raw_window, handlers);
 }
 
-struct ActionWindow *ACTION_WINDOW_create()
+struct ActionWindow *ACTION_WINDOW_create(int habit_id)
 {
     struct ActionWindow *window = 0;
 
     window = (struct ActionWindow*) malloc(sizeof(struct ActionWindow));
     if(!window) return NULL;
+
+    window->habit_id = habit_id;
 
     Window *raw_window = window_create();
     if(!raw_window) return NULL;

@@ -22,7 +22,9 @@
 
 struct ListLayerCallbacks
 {
-    void (*on_select)(void *callback_context);
+    void *on_select_context;
+
+    int (*on_select)(int habit_id, void *callback_context);
 };
 
 struct ListLayer
@@ -35,9 +37,15 @@ struct ListLayer
     struct MenuLayer *menu_layer;
     struct ActionWindow *action_window;
 
-    void *callback_context;
     struct ListLayerCallbacks callbacks;
 };
+
+int LIST_LAYER_add_habit(struct ListLayer *layer,
+                         int new_id,
+                         char *new_name,
+                         int new_checkmark);
+
+int LIST_LAYER_allocate(struct ListLayer *layer, int count);
 
 void LIST_LAYER_attach_to_window(struct ListLayer *layer, struct Window *window);
 
@@ -46,3 +54,5 @@ void LIST_LAYER_add_to_layer(struct ListLayer *layer, struct Layer *root_layer);
 struct ListLayer* LIST_LAYER_create(struct GRect bounds);
 
 void LIST_LAYER_destroy(struct ListLayer *layer);
+
+int LIST_LAYER_clear(struct ListLayer *layer);

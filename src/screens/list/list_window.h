@@ -26,8 +26,6 @@ struct ListWindow
     struct ActionWindow *action_window;
 };
 
-void LIST_WINDOW_show_action_window(struct ListWindow *window);
-
 struct ListWindow *LIST_WINDOW_create();
 
 void LIST_WINDOW_destroy(struct ListWindow *window);

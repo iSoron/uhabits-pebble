@@ -21,13 +21,12 @@
 
 struct ActionMenuLayerCallbacks
 {
-    void (*on_select)(void *callback_context);
+    int (*on_select)(void *callback_context);
 };
 
 struct ActionMenuLayer
 {
     struct MenuLayer *menu_layer;
-
     void *callback_context;
     struct ActionMenuLayerCallbacks callbacks;
 };

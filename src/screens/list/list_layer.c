@@ -23,22 +23,31 @@
 
 #define MAX_NAME_LENGTH 20
 
-static int free_habits(struct ListLayer *layer)
+int LIST_LAYER_clear(struct ListLayer *layer)
 {
+    int rval = 0;
+    abort_if(!layer, "layer is null");
+
     for(int i = 0; i < layer->habit_count; i++) free(layer->habit_names[i]);
     free(layer->habit_names);
     free(layer->habit_checkmarks);
     free(layer->habit_ids);
+
+    layer->habit_names = 0;
+    layer->habit_checkmarks = 0;
+    layer->habit_ids = 0;
     layer->habit_count = 0;
 
-    return 0;
+CLEANUP:
+    return rval;
 }
 
 int LIST_LAYER_allocate(struct ListLayer *layer, int count)
 {
     int rval = 0;
 
-    free_habits(layer);
+    rval = LIST_LAYER_clear(layer);
+    abort_if(rval, "LIST_LAYER_clear failed");
 
     layer->habit_names = (char **) malloc(count * sizeof(char *));
     abort_if(!layer->habit_names, "could not allocate habit_names");
@@ -64,8 +73,14 @@ int LIST_LAYER_add_habit(struct ListLayer *layer,
                          char *new_name,
                          int new_checkmark)
 {
-    uint16_t count = layer->habit_count;
+    int rval = 0;
 
+    abort_if(!layer, "layer is null");
+    abort_if(!layer->habit_ids, "layer->habit_ids is null");
+    abort_if(!layer->habit_names, "layer->habits_names is null");
+    abort_if(!layer->habit_checkmarks, "layer->habit_checkmarks is null");
+
+    uint16_t count = layer->habit_count;
     char *name = layer->habit_names[count];
     strncpy(name, new_name, MAX_NAME_LENGTH);
     menu_layer_reload_data(layer->menu_layer);
@@ -74,7 +89,8 @@ int LIST_LAYER_add_habit(struct ListLayer *layer,
     layer->habit_checkmarks[count] = new_checkmark;
     layer->habit_count++;
 
-    return 0;
+CLEANUP:
+    return rval;
 }
 
 static uint16_t get_num_rows(MenuLayer *menu_layer,
@@ -90,11 +106,20 @@ static void on_draw_row(GContext *ctx,
                         MenuIndex *cell_index,
                         void *callback_context)
 {
+    int rval = 0;
+    abort_if(!cell_index, "cell_index is null");
+
     int n = cell_index->row;
+
     struct ListLayer *list_layer = callback_context;
+    abort_if(!list_layer, "list_layer is null");
+
     char *name = list_layer->habit_names[n];
 
     menu_cell_basic_draw(ctx, cell_layer, name, NULL, NULL);
+
+CLEANUP:
+    if(rval) CRASH();
 }
 
 static int16_t get_cell_height(struct MenuLayer *menu_layer,
@@ -108,21 +133,23 @@ static void select_click(struct MenuLayer *menu_layer,
                          struct MenuIndex *index,
                          void *callback_context)
 {
+    int rval = 0;
+
     struct ListLayer *list_layer = callback_context;
-    if(!list_layer->callbacks.on_select) return;
+    abort_if(!list_layer, "list_layer is null");
 
-    list_layer->callbacks.on_select(list_layer->callback_context);
-}
+    struct ListLayerCallbacks *callbacks = &list_layer->callbacks;
+    abort_if(!callbacks, "callbacks is null");
 
-static void request_list(void *context)
-{
-    struct ListLayer *layer = context;
+    int n = index->row;
+    int habit_id = list_layer->habit_ids[n];
 
-    LIST_LAYER_allocate(layer, 4);
-    LIST_LAYER_add_habit(layer, 0, "Wake up early", 0);
-    LIST_LAYER_add_habit(layer, 1, "Meditate", 1);
-    LIST_LAYER_add_habit(layer, 2, "Exercise", 1);
-    LIST_LAYER_add_habit(layer, 3, "Go to school", 0);
+    if(!callbacks->on_select) return;
+    rval = callbacks->on_select(habit_id, callbacks->on_select_context);
+    abort_if(rval, "callbacks->on_select failed");
+
+CLEANUP:
+    if(rval) CRASH();
 }
 
 static void set_menu_layer_callbacks(struct ListLayer *list_layer,
@@ -149,7 +176,6 @@ static void set_menu_layer_styles(MenuLayer *menu_layer)
 void LIST_LAYER_attach_to_window(struct ListLayer *layer, struct Window *window)
 {
     menu_layer_set_click_config_onto_window(layer->menu_layer, window);
-    app_timer_register(500, request_list, layer);
 }
 
 void LIST_LAYER_add_to_layer(struct ListLayer *layer, struct Layer *root_layer)
@@ -178,7 +204,7 @@ struct ListLayer* LIST_LAYER_create(struct GRect bounds)
 void LIST_LAYER_destroy(struct ListLayer *list_layer)
 {
     if(!list_layer) return;
-    free_habits(list_layer);
+    LIST_LAYER_clear(list_layer);
     menu_layer_destroy(list_layer->menu_layer);
     free(list_layer);
 }
