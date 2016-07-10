@@ -23,6 +23,11 @@
     ],
     "resources": {
       "media": [
+        {
+          "type": "raw",
+          "name": "CONFIRM_SEQUENCE",
+          "file": "confirm_sequence.pdc"
+        }
       ]
     }
   }

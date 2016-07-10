@@ -23,10 +23,17 @@
 #include "../../util.h"
 #include "action_menu_layer.h"
 #include "style.h"
+#include "../animation/animation_window.h"
 
 static void on_select(void *callback_context)
 {
-    window_stack_pop(true);
+    struct ActionWindow *window = callback_context;
+
+    ANIMATION_WINDOW_destroy(window->animation_window);
+    window->animation_window = ANIMATION_WINDOW_create(
+            RESOURCE_ID_CONFIRM_SEQUENCE);
+
+    window_stack_push(window->animation_window->raw_window, true);
 }
 
 static int add_menu_layer(struct ActionWindow *window,
@@ -89,6 +96,7 @@ static void on_unload(Window *raw_window)
     struct ActionWindow *window = window_get_user_data(raw_window);
     ACTION_MENU_LAYER_destroy(window->menu_layer);
     BORDER_LAYER_destroy(window->border_layer);
+    ANIMATION_WINDOW_destroy(window->animation_window);
 }
 
 static void set_raw_window_handlers(Window *raw_window)
@@ -114,6 +122,8 @@ struct ActionWindow *ACTION_WINDOW_create()
     window->raw_window = raw_window;
     window_set_user_data(raw_window, window);
     set_raw_window_handlers(raw_window);
+
+    window->animation_window = 0;
 
     return window;
 }

@@ -21,6 +21,7 @@
 #include "list_window.h"
 #include "../action/action_window.h"
 #include "list_layer.h"
+#include "../animation/animation_window.h"
 
 static void on_select(void *callback_context)
 {

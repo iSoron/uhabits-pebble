@@ -16,16 +16,8 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+#pragma once
 
-#include <pebble.h>
-#include "screens/list/list_window.h"
+#define PADDING 10
 
-int main(void)
-{
-    struct ListWindow *window = LIST_WINDOW_create();
-    window_stack_push(window->raw_window, true);
-
-    app_event_loop();
-
-    LIST_WINDOW_destroy(window);
-}
+#define BACKGROUND_COLOR GColorFolly

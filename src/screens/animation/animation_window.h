@@ -16,21 +16,20 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 #pragma once
 
-#include <pebble.h>
+struct AnimationWindow
+{
+    uint32_t current_frame;
+    uint32_t num_frames;//
 
-#define HIGHLIGHT_BACKGROUND_COLOR GColorBlack
+    struct Layer *animation_layer;
+    struct TextLayer *text_layer;
+    struct AppTimer *timer;//
+    struct GDrawCommandSequence *sequence;//
+    struct Window *raw_window;//
+};
 
-#define HIGHLIGHT_FOREGROUND_COLOR GColorWhite
+struct AnimationWindow *ANIMATION_WINDOW_create(uint32_t sequence_id);
 
-#define NORMAL_BACKGROUND_COLOR GColorBlack
-
-#define NORMAL_FOREGROUND_COLOR GColorDarkGray
-
-#define BORDER_COLOR GColorFolly
-
-#define BORDER_WIDTH 10
-
-#define CELL_HEIGHT 36
+void ANIMATION_WINDOW_destroy(struct AnimationWindow *window);

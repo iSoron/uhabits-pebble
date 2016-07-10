@@ -14,16 +14,20 @@ set(SOURCE_FILES
         src/main.c
         src/network.c
         src/network.h
-        src/windows/list/list_window.c
-        src/windows/list/list_window.h
-        src/windows/list/style.h
         src/util.h
-        src/windows/action/action_window.c
-        src/windows/action/action_window.h
-        src/windows/action/style.h
         src/layers/border_layer.c
         src/layers/border_layer.h
-        src/windows/action/action_menu_layer.c
-        src/windows/action/action_menu_layer.h src/windows/list/list_layer.c src/windows/list/list_layer.h)
+        src/screens/list/list_window.c
+        src/screens/list/list_window.h
+        src/screens/list/style.h
+        src/screens/action/action_window.c
+        src/screens/action/action_window.h
+        src/screens/action/style.h
+        src/screens/action/action_menu_layer.c
+        src/screens/action/action_menu_layer.h
+        src/screens/list/list_layer.c
+        src/screens/list/list_layer.h
+        src/screens/animation/animation_window.c
+        src/screens/animation/animation_window.h src/screens/animation/style.h)
 
 add_executable(hello ${SOURCE_FILES})

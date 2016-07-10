@@ -17,15 +17,20 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include <pebble.h>
-#include "screens/list/list_window.h"
 
-int main(void)
-{
-    struct ListWindow *window = LIST_WINDOW_create();
-    window_stack_push(window->raw_window, true);
+#define HIGHLIGHT_BACKGROUND_COLOR GColorBlack
 
-    app_event_loop();
+#define HIGHLIGHT_FOREGROUND_COLOR GColorWhite
 
-    LIST_WINDOW_destroy(window);
-}
+#define NORMAL_BACKGROUND_COLOR GColorBlack
+
+#define NORMAL_FOREGROUND_COLOR GColorDarkGray
+
+#define BORDER_COLOR GColorFolly
+
+#define BORDER_WIDTH 6
+
+#define CELL_HEIGHT 36

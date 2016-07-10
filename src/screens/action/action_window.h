@@ -26,6 +26,8 @@ struct ActionWindow
     struct ActionMenuLayer *menu_layer;
 
     struct BorderLayer *border_layer;
+
+    struct AnimationWindow *animation_window;
 };
 
 struct ActionWindow* ACTION_WINDOW_create();
